@@ -5,21 +5,23 @@ import random
 from deap import base, creator, tools, algorithms
 
 from src.aptitude import fitness
-from src.generators import generar_set_nuebles
+from src.generators import generar_habitacion, generar_set_nuebles
 
 
 def cx_habitacion(ind1, ind2):
     pass
 
+
 def mutar_habitacion(ind1, ind2):
     pass
 
+habitacion = generar_habitacion()
 
 creator.create("FitnessMax", base.Fitness, weights=(1.0,))
 creator.create("Individual", list, fitness=creator.FitnessMax)
 
 toolbox = base.Toolbox()
-toolbox.register("individual", tools.initIterate, creator.Individual, generar_set_nuebles())
+toolbox.register("individual", tools.initIterate, creator.Individual, generar_set_nuebles(habitacion))
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 toolbox.register("evaluate", fitness())
 
@@ -34,6 +36,7 @@ if config.CONFIG.CROSSOVER_TYPE == 'cx_habitacion':
     toolbox.register("mate", cx_habitacion)
 
 toolbox.register("mutate", mutar_habitacion)
+
 
 def execute_ga_with_deap():
     population = toolbox.population(n=config.CONFIG.POPULATION_SIZE)
@@ -74,26 +77,26 @@ def execute_ga_with_deap():
 
             print(f"Generación {gen}: {record}")
 
-    best_banda = hof[0]
+    best_habitacion = hof[0]
     print("Best individual:")
-    for idx, musico in enumerate(best_banda, start=1):
-        print(f"Integrante {idx} (ID: {musico['id']}):")
-        for key, value in musico.items():
+    for idx, mueble in enumerate(best_habitacion, start=1):
+        print(f"Integrante {idx} (ID: {mueble['id']}):")
+        for key, value in mueble.items():
             print(f"  {key}: {value}")
-    print("Fitness value:", best_banda.fitness.values[0])
+    print("Fitness value:", best_habitacion.fitness.values[0])
 
-    with open("../resources/mejor_banda.csv", mode="w", newline="") as file:
+    with open("../resources/best_habitacion.csv", mode="w", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow(["Integrante", "ID", "Tipo", "Habilidad Técnica", "Género Favorito", "Carisma",
-                         "Disponibilidad", "Ideologías", "Ambición", "Ubicación Geográfica"])
-        for idx, musico in enumerate(best_banda, start=1):
-            writer.writerow([f"Integrante {idx}", musico["id"], musico["tipo"], musico["habilidad_tecnica"],
-                             musico["genero_favorito"], musico["carisma"], musico["disponibilidad"],
-                             musico["ideologias"], musico["ambicion"], musico["ubicacion_geografica"]])
+        writer.writerow(
+            ["ID", "Nombre", "Ancho", "Profundidad", "x", "y", "Rotacion (0-90°)", "Requiere toma", "Debe ir a pared"])
+        for idx, mueble in enumerate(best_habitacion, start=1):
+            writer.writerow([f"Mueble {idx}", mueble["id"], mueble["nombre"], mueble["ancho"],
+                             mueble["profundidad"], mueble["x"], mueble["y"],
+                             mueble["rot"], mueble["requiere_toma"], mueble["debe_ir_a_pared"]])
+
 
 if __name__ == "__main__":
     execute_ga_with_deap()
-
 
 """
 def cxBanda(ind1, ind2):
