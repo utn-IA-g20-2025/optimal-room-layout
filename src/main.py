@@ -1,29 +1,52 @@
-import config
-import values
-import csv
 import random
-from deap import base, creator, tools, algorithms
+import config
+import csv
+from deap import base, creator, tools
 
+from src import values
 from src.aptitude import fitness
-from src.generators import generar_habitacion, generar_set_nuebles
+from src.generators import generar_habitacion, generar_set_nuebles, generar_mueble
+from src.values import CANT_MAX_MUEBLES
+
+habitacion = generar_habitacion()
+muebles = generar_set_nuebles(habitacion)
 
 
 def cx_habitacion(ind1, ind2):
-    pass
+    combined = ind1 + ind2
+    random.shuffle(combined)
+    tipos_muebles = {}
+
+    for mueble in combined:
+        tipo = mueble["tipo"]
+        if tipo not in tipos_muebles:
+            tipos_muebles[tipo] = mueble
+
+    new_muebles = list(tipos_muebles.values())
+
+    while len(new_muebles) < CANT_MAX_MUEBLES:
+        tipo_faltante = random.choice([t for t in values.TIPOS if t not in tipos_muebles])
+        nuevo_musico = generar_mueble(habitacion)
+        nuevo_musico["tipo"] = tipo_faltante
+        new_muebles.append(nuevo_musico)
+
+    ind1[:] = new_muebles[:7]
+    ind2[:] = new_muebles[:7]
+
+    return ind1, ind2
 
 
 def mutar_habitacion(ind1, ind2):
     pass
 
-habitacion = generar_habitacion()
 
 creator.create("FitnessMax", base.Fitness, weights=(1.0,))
 creator.create("Individual", list, fitness=creator.FitnessMax)
 
 toolbox = base.Toolbox()
-toolbox.register("individual", tools.initIterate, creator.Individual, generar_set_nuebles(habitacion))
+toolbox.register("individual", tools.initIterate, creator.Individual, muebles)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-toolbox.register("evaluate", fitness())
+toolbox.register("evaluate", fitness(muebles, habitacion, habitacion["lista_tomas"]))
 
 if config.CONFIG.SELECTION_TYPE == 'Tournament':
     toolbox.register("select", tools.selTournament, tournsize=config.CONFIG.TOURNAMENT_SIZE)
@@ -88,9 +111,9 @@ def execute_ga_with_deap():
     with open("../resources/best_habitacion.csv", mode="w", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(
-            ["ID", "Nombre", "Ancho", "Profundidad", "x", "y", "Rotacion (0-90°)", "Requiere toma", "Debe ir a pared"])
+            ["ID", "Tipo", "Ancho", "Profundidad", "x", "y", "Rotacion (0-90°)", "Requiere toma", "Debe ir a pared"])
         for idx, mueble in enumerate(best_habitacion, start=1):
-            writer.writerow([f"Mueble {idx}", mueble["id"], mueble["nombre"], mueble["ancho"],
+            writer.writerow([f"Mueble {idx}", mueble["id"], mueble["tipo"], mueble["ancho"],
                              mueble["profundidad"], mueble["x"], mueble["y"],
                              mueble["rot"], mueble["requiere_toma"], mueble["debe_ir_a_pared"]])
 
@@ -99,29 +122,6 @@ if __name__ == "__main__":
     execute_ga_with_deap()
 
 """
-def cxBanda(ind1, ind2):
-    combined = ind1 + ind2
-    random.shuffle(combined)
-    tipos_musicos = {}
-
-    for musico in combined:
-        tipo = musico["tipo"]
-        if tipo not in tipos_musicos:
-            tipos_musicos[tipo] = musico
-
-    new_musicos = list(tipos_musicos.values())
-
-    while len(new_musicos) < 5:
-        tipo_faltante = random.choice([t for t in values.TIPOS if t not in tipos_musicos])
-        nuevo_musico = generar_musico()
-        nuevo_musico["tipo"] = tipo_faltante
-        new_musicos.append(nuevo_musico)
-
-    ind1[:] = new_musicos[:5]
-    ind2[:] = new_musicos[:5]
-
-    return ind1, ind2
-
 def mutar_banda(individual):
     for i in range(len(individual)):
         if random.random() < config.CONFIG.MUTATION_PROB:
