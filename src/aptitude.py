@@ -6,9 +6,9 @@ def calcular_distancia(p1, p2):
         (p1[1] - p2[1]) ** 2
     )
 
-def fitness(individuo, habitacion, tomas, reglas_adyacencia=[]):
+def fitness(muebles, habitacion, tomas, reglas_adyacencia=[]):
     """
-    individuo: lista de muebles/electrodomésticos, cada uno como un dict con keys:
+    muebles: lista de muebles/electrodomésticos, cada uno como un dict con keys:
         - 'nombre'
         - 'ancho', 'profundidad'
         - 'x', 'z' (posición)
@@ -24,7 +24,7 @@ def fitness(individuo, habitacion, tomas, reglas_adyacencia=[]):
 
     objetos = []
 
-    for mueble in individuo:
+    for mueble in muebles:
         if mueble['rot'] == 90:
             w, d = mueble['profundidad'], mueble['ancho']
         else:
