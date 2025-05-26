@@ -30,7 +30,7 @@ elif config.CONFIG.SELECTION_TYPE == 'Roulette':
 elif config.CONFIG.SELECTION_TYPE == 'Rank':
     toolbox.register("select", tools.selRank)
 
-if config.CONFIG.CROSSOVER_TYPE == 'cxBanda':
+if config.CONFIG.CROSSOVER_TYPE == 'cx_habitacion':
     toolbox.register("mate", cx_habitacion)
 
 toolbox.register("mutate", mutar_habitacion)
