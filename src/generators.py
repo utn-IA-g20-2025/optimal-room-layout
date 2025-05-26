@@ -8,7 +8,7 @@ global habitacion
 def get_lista_tomas():
     cantidad_tomas = random.randint(2, 10),
     lista_tomas = dict
-    for toma in cantidad_tomas:
+    for _ in cantidad_tomas:
         lista_tomas.update({
             'x': random.randint(0, habitacion["ancho"]),
             'y': random.randint(0, habitacion["profundidad"])
@@ -35,7 +35,7 @@ def generar_mueble(hab):
     global mueble_id_counter
     mueble = {
         "id": mueble_id_counter,
-        "nombre": random.choice(values.TIPOS),
+        "tipo": random.choice(values.TIPOS),
         "ancho": random.randint(50, 100),
         "profundidad": random.randint(50, 100),
         "x":  random.randint(0, hab["ancho"]),
@@ -48,4 +48,4 @@ def generar_mueble(hab):
     return mueble
 
 def generar_set_nuebles(hab):
-    return [generar_mueble(hab) for _ in range(5)]  # Se puede tomar de un archivo csv
+    return [generar_mueble(hab) for _ in range(7)]  # Se puede tomar de un archivo csv
