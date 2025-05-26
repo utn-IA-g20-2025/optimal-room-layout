@@ -36,8 +36,19 @@ def cx_habitacion(ind1, ind2):
     return ind1, ind2
 
 
-def mutar_habitacion(ind1, ind2):
-    pass
+def mutar_habitacion(individual):
+    for i in range(len(individual)):
+        if random.random() < config.CONFIG.MUTATION_PROB:
+            tipo = individual[i]["tipo"]
+            id_original = individual[i]["id"]
+            nuevo_mueble = generar_mueble(habitacion)
+
+            # Mantener el ID original y el tipo
+            nuevo_mueble["id"] = id_original
+            nuevo_mueble["tipo"] = tipo
+
+            individual[i] = nuevo_mueble
+    return individual
 
 
 creator.create("FitnessMax", base.Fitness, weights=(1.0,))
@@ -120,19 +131,3 @@ def execute_ga_with_deap():
 
 if __name__ == "__main__":
     execute_ga_with_deap()
-
-"""
-def mutar_banda(individual):
-    for i in range(len(individual)):
-        if random.random() < config.CONFIG.MUTATION_PROB:
-            tipo = individual[i]["tipo"]
-            id_original = individual[i]["id"]
-            nuevo_musico = generar_musico()
-
-            # Mantener el ID original y el tipo
-            nuevo_musico["id"] = id_original
-            nuevo_musico["tipo"] = tipo
-
-            individual[i] = nuevo_musico
-    return individual,
-"""
