@@ -1,6 +1,7 @@
 import math
 
 from src import values
+from values import HABITACION
 
 
 def calcular_distancia(p1, p2):
@@ -175,7 +176,7 @@ def calcular_penalizacion_pared(obj, rot, ancho_habitacion, profundidad_habitaci
     return 0
 
 
-def fitness(muebles, reglas_adyacencia=[]):
+def fitness(muebles):
     """
     Calcula la puntuación de aptitud para una disposición de muebles en la habitación.
     Args:
@@ -184,8 +185,6 @@ def fitness(muebles, reglas_adyacencia=[]):
             - 'ancho', 'profundidad'
             - 'x', 'z' (posición)
             - 'rot' (rotación en grados: 0 o 90)
-            - 'requiere_toma' (bool)
-            - 'debe_ir_a_pared' (bool)
         reglas_adyacencia: Lista de tuplas con nombres de objetos que deben estar juntos.
     Returns:
         float: La puntuación de aptitud para la disposición de muebles.
@@ -202,7 +201,7 @@ def fitness(muebles, reglas_adyacencia=[]):
 
         x, z = mueble['x'], mueble['y']
 
-        puntuacion -= calcular_penalizacion_fuera_de_limites(x, z, w, d, values.HABITACION['ancho'], values.HABITACION['profundidad'])
+        puntuacion -= calcular_penalizacion_fuera_de_limites(x, z, w, d, HABITACION['ancho'], HABITACION['profundidad'])
 
         objetos.append({
             'tipo': mueble['tipo'],
@@ -221,15 +220,15 @@ def fitness(muebles, reglas_adyacencia=[]):
             bbox2 = calcular_bounding_box(o2['cx'], o2['cz'], o2['x2'] - o2['x1'], o2['z2'] - o2['z1'], muebles[j]['rot'])
             puntuacion -= calcular_penalizacion_solapamiento(bbox1, bbox2)
 
-    tomas = values.HABITACION["tomas"]
+    tomas = HABITACION["tomas"]
 
     for obj in objetos:
         puntuacion -= calcular_penalizacion_toma(obj, tomas)
 
     for idx, obj in enumerate(objetos):
-        puntuacion -= calcular_penalizacion_pared(obj, muebles[idx]['rot'], values.HABITACION['ancho'], values.HABITACION['profundidad'])
+        puntuacion -= calcular_penalizacion_pared(obj, muebles[idx]['rot'], HABITACION['ancho'], HABITACION['profundidad'])
 
-    for nombre1, nombre2 in reglas_adyacencia:
+    for nombre1, nombre2 in HABITACION["reglas_adyacencia"]:
         obj1 = next((o for o in objetos if o['nombre'] == nombre1), None)
         obj2 = next((o for o in objetos if o['nombre'] == nombre2), None)
         if obj1 and obj2:

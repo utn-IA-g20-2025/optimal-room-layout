@@ -1,12 +1,12 @@
-import random
-from src import config
 import csv
+import random
+
 from deap import base, creator, tools
 
 from src import values, config
 from src.aptitude import fitness
-from src.generators import generar_habitacion, generar_mueble, generar_set_muebles
-from src.values import CANT_MAX_MUEBLES
+from src.generators import generar_mueble, generar_set_muebles
+from src.values import CANTIDAD_DE_MUEBLES
 
 
 def cx_habitacion(ind1, ind2):
@@ -21,14 +21,14 @@ def cx_habitacion(ind1, ind2):
 
     new_muebles = list(tipos_muebles.values())
 
-    while len(new_muebles) < CANT_MAX_MUEBLES:
+    while len(new_muebles) < CANTIDAD_DE_MUEBLES:
         tipo_faltante = random.choice([t for t in values.TIPOS if t not in tipos_muebles])
         nuevo_mueble = generar_mueble()
         nuevo_mueble["tipo"] = tipo_faltante
         new_muebles.append(nuevo_mueble)
 
-    ind1[:] = new_muebles[:values.CANT_MAX_MUEBLES]
-    ind2[:] = new_muebles[:values.CANT_MAX_MUEBLES]
+    ind1[:] = new_muebles[:values.CANTIDAD_DE_MUEBLES]
+    ind2[:] = new_muebles[:values.CANTIDAD_DE_MUEBLES]
 
     return ind1, ind2
 
@@ -70,7 +70,6 @@ toolbox.register("mutate", mutar_habitacion)
 
 
 def execute_ga_with_deap():
-    generar_habitacion()
     print("ancho habitacion: ", values.HABITACION["ancho"])
     print("profundidad habitacion: ", values.HABITACION["profundidad"])
 

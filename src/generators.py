@@ -1,56 +1,23 @@
 import random
 
-from src import values
+from values import MUEBLES, HABITACION
 
-mueble_id_counter = 0
-
-
-def get_lista_tomas(ancho, prof):
-    cantidad_tomas = random.randint(2, 10)
-    lista_tomas = []
-    for _ in range(cantidad_tomas):
-        lista_tomas.append({
-            "x": random.randint(0, ancho),
-            "y": random.randint(0, prof)
-        })
-    return lista_tomas
-
-
-def get_reglas_adyacencia():
-    # TODO reglas_adyacencia: lista de tuplas con nombres de objetos que deben estar juntos.
-    pass
-
-
-def generar_habitacion():
-    values.HABITACION = {}
-    ancho = random.randint(200, 1000)
-    prof = random.randint(200, 1000)
-    lista_tomas = get_lista_tomas(ancho, prof)
-    habitacion = {'ancho': ancho,
-                  'profundidad': prof,
-                  'tomas': lista_tomas,
-                  'reglas_adyacencia': get_reglas_adyacencia()
-                  }
-    values.HABITACION = habitacion
-    return habitacion
-
-
-def generar_mueble():
-    global mueble_id_counter
-    mueble = {
-        "id": mueble_id_counter,
-        "tipo": random.choice(values.TIPOS),
-        "ancho": random.randint(50, 100),
-        "profundidad": random.randint(50, 100),
-        "x": random.randint(0, values.HABITACION["ancho"]),
-        "y": random.randint(0, values.HABITACION["profundidad"]),
-        "rot": random.randint(0, 90),
-        "requiere_toma": bool(random.getrandbits(1)),
-        "debe_ir_a_pared": bool(random.getrandbits(1))
+def generar_mueble(info_mueble):
+    return {
+        "id": info_mueble["nombre"],
+        "ancho": info_mueble["ancho"],
+        "profundidad": info_mueble["profundidad"],
+        "necesita_toma": info_mueble["necesita_toma"],
+        "lado_frontal": info_mueble["lado_frontal"],
+        "margen_a": info_mueble["margen_a"],
+        "margen_b": info_mueble["margen_b"],
+        "margen_c": info_mueble["margen_c"],
+        "margen_d": info_mueble["margen_d"],
+        "x": random.randint(0, HABITACION["ancho"]),
+        "y": random.randint(0, HABITACION["profundidad"]),
+        "rot": random.choice([0, 90, 180, 270])
     }
-    mueble_id_counter += 1
-    return mueble
 
-
+# individuo = lista de muebles en ubicaciones al azar
 def generar_set_muebles():
-    return [generar_mueble() for _ in range(values.CANT_MAX_MUEBLES)]  # Se puede tomar de un archivo csv
+    return [generar_mueble(info_mueble) for info_mueble in MUEBLES]
