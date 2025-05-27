@@ -1,5 +1,7 @@
 import math
 
+from src import values
+
 
 def calcular_distancia(p1, p2):
     return math.sqrt(
@@ -8,7 +10,7 @@ def calcular_distancia(p1, p2):
     )
 
 
-def fitness(muebles, habitacion, reglas_adyacencia=[]):
+def fitness(muebles, reglas_adyacencia=[]):
     """
     muebles: lista de muebles/electrodomésticos, cada uno como un dict con keys:
         - 'nombre'
@@ -35,8 +37,8 @@ def fitness(muebles, habitacion, reglas_adyacencia=[]):
         x, z = mueble['x'], mueble['y']
 
         if (x < 0 or z < 0 or
-                x + w > habitacion['ancho'] or
-                z + d > habitacion['profundidad']):
+                x + w > values.HABITACION['ancho'] or
+                z + d > values.HABITACION['profundidad']):
             puntuacion -= 200
 
         objetos.append({
@@ -58,7 +60,7 @@ def fitness(muebles, habitacion, reglas_adyacencia=[]):
             if intersecta:
                 puntuacion -= 300
 
-    tomas = habitacion["tomas"]
+    tomas = values.HABITACION["tomas"]
 
     for obj in objetos:
         if obj['requiere_toma']:
@@ -69,8 +71,8 @@ def fitness(muebles, habitacion, reglas_adyacencia=[]):
         if obj['debe_ir_a_pared']:
             dist_pared = min(
                 obj['x1'], obj['z1'],
-                habitacion['ancho'] - obj['x2'],
-                habitacion['profundidad'] - obj['z2']
+                values.HABITACION['ancho'] - obj['x2'],
+                values.HABITACION['profundidad'] - obj['z2']
             )
             puntuacion -= dist_pared * 2
 
@@ -85,4 +87,4 @@ def fitness(muebles, habitacion, reglas_adyacencia=[]):
             else:
                 puntuacion -= distancia * 10
 
-    return puntuacion
+    return puntuacion,

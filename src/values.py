@@ -42,3 +42,4 @@ OBJECTS = [
 TIPOS = ["Mesa con sillas", "Cama","TV","Biblioteca","sillón", "Escritorio", "Lavarropas"]
 
 CANT_MAX_MUEBLES = len(TIPOS)
+HABITACION = {}
