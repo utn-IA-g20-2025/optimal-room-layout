@@ -14,7 +14,7 @@ def cx_habitacion(ind1, ind2):
     random.shuffle(combined)
     tipos_muebles = {}
 
-    for mueble in combined["muebles"]:
+    for mueble in combined:
         tipo = mueble["tipo"]
         if tipo not in tipos_muebles:
             tipos_muebles[tipo] = mueble
@@ -23,9 +23,9 @@ def cx_habitacion(ind1, ind2):
 
     while len(new_muebles) < CANT_MAX_MUEBLES:
         tipo_faltante = random.choice([t for t in values.TIPOS if t not in tipos_muebles])
-        nuevo_musico = generar_mueble(ind1["ancho"], ind1["prof"])
-        nuevo_musico["tipo"] = tipo_faltante
-        new_muebles.append(nuevo_musico)
+        nuevo_mueble = generar_mueble()
+        nuevo_mueble["tipo"] = tipo_faltante
+        new_muebles.append(nuevo_mueble)
 
     ind1[:] = new_muebles[:values.CANT_MAX_MUEBLES]
     ind2[:] = new_muebles[:values.CANT_MAX_MUEBLES]
@@ -38,7 +38,7 @@ def mutar_habitacion(individual):
         if random.random() < config.CONFIG.MUTATION_PROB:
             tipo = individual[i]["tipo"]
             id_original = individual[i]["id"]
-            nuevo_mueble = generar_mueble(individual["ancho"], individual["prof"])
+            nuevo_mueble = generar_mueble()
 
             # Mantener el ID original y el tipo
             nuevo_mueble["id"] = id_original
@@ -52,7 +52,7 @@ creator.create("FitnessMax", base.Fitness, weights=(1.0,))
 creator.create("Individual", list, fitness=creator.FitnessMax)
 
 toolbox = base.Toolbox()
-toolbox.register("individual", tools.initIterate, creator.Individual, generar_habitacion)
+toolbox.register("individual", tools.initIterate, creator.Individual, generar_set_muebles)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 toolbox.register("evaluate", fitness)
 
@@ -70,6 +70,10 @@ toolbox.register("mutate", mutar_habitacion)
 
 
 def execute_ga_with_deap():
+    generar_habitacion()
+    print("ancho habitacion: ", values.HABITACION["ancho"])
+    print("profundidad habitacion: ", values.HABITACION["profundidad"])
+
     population = toolbox.population(n=config.CONFIG.POPULATION_SIZE)
 
     hof = tools.HallOfFame(1)
