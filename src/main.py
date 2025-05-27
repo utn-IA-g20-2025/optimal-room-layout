@@ -3,13 +3,10 @@ import config
 import csv
 from deap import base, creator, tools
 
-from src import values
+from src import values, config
 from src.aptitude import fitness
-from src.generators import generar_habitacion, generar_set_nuebles, generar_mueble
+from src.generators import generar_habitacion, generar_mueble, generar_set_muebles
 from src.values import CANT_MAX_MUEBLES
-
-habitacion = generar_habitacion()
-muebles = generar_set_nuebles(habitacion)
 
 
 def cx_habitacion(ind1, ind2):
@@ -17,7 +14,7 @@ def cx_habitacion(ind1, ind2):
     random.shuffle(combined)
     tipos_muebles = {}
 
-    for mueble in combined:
+    for mueble in combined["muebles"]:
         tipo = mueble["tipo"]
         if tipo not in tipos_muebles:
             tipos_muebles[tipo] = mueble
@@ -26,12 +23,12 @@ def cx_habitacion(ind1, ind2):
 
     while len(new_muebles) < CANT_MAX_MUEBLES:
         tipo_faltante = random.choice([t for t in values.TIPOS if t not in tipos_muebles])
-        nuevo_musico = generar_mueble(habitacion)
+        nuevo_musico = generar_mueble(ind1["ancho"], ind1["prof"])
         nuevo_musico["tipo"] = tipo_faltante
         new_muebles.append(nuevo_musico)
 
-    ind1[:] = new_muebles[:7]
-    ind2[:] = new_muebles[:7]
+    ind1[:] = new_muebles[:values.CANT_MAX_MUEBLES]
+    ind2[:] = new_muebles[:values.CANT_MAX_MUEBLES]
 
     return ind1, ind2
 
@@ -41,7 +38,7 @@ def mutar_habitacion(individual):
         if random.random() < config.CONFIG.MUTATION_PROB:
             tipo = individual[i]["tipo"]
             id_original = individual[i]["id"]
-            nuevo_mueble = generar_mueble(habitacion)
+            nuevo_mueble = generar_mueble(individual["ancho"], individual["prof"])
 
             # Mantener el ID original y el tipo
             nuevo_mueble["id"] = id_original
@@ -55,9 +52,9 @@ creator.create("FitnessMax", base.Fitness, weights=(1.0,))
 creator.create("Individual", list, fitness=creator.FitnessMax)
 
 toolbox = base.Toolbox()
-toolbox.register("individual", tools.initIterate, creator.Individual, muebles)
+toolbox.register("individual", tools.initIterate, creator.Individual, generar_habitacion)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-toolbox.register("evaluate", fitness, muebles, habitacion)
+toolbox.register("evaluate", fitness)
 
 if config.CONFIG.SELECTION_TYPE == 'Tournament':
     toolbox.register("select", tools.selTournament, tournsize=config.CONFIG.TOURNAMENT_SIZE)
@@ -80,7 +77,7 @@ def execute_ga_with_deap():
     stats.register("avg", lambda x: sum(fit[0] for fit in x) / len(x))
     stats.register("max", max)
 
-    with open("../resources/resultados.csv", mode="w", newline="") as file:
+    with open("../resources/resultados.csv", mode="w+", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(["Generación", "Fitness Promedio", "Fitness Máximo"])
 
