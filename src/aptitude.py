@@ -1,12 +1,14 @@
 import math
 
+
 def calcular_distancia(p1, p2):
     return math.sqrt(
         (p1[0] - p2[0]) ** 2 +
         (p1[1] - p2[1]) ** 2
     )
 
-def fitness(muebles, habitacion, tomas, reglas_adyacencia=[]):
+
+def fitness(muebles, habitacion, reglas_adyacencia=[]):
     """
     muebles: lista de muebles/electrodomésticos, cada uno como un dict con keys:
         - 'nombre'
@@ -30,15 +32,15 @@ def fitness(muebles, habitacion, tomas, reglas_adyacencia=[]):
         else:
             w, d = mueble['ancho'], mueble['profundidad']
 
-        x, z = mueble['x'], mueble['z']
+        x, z = mueble['x'], mueble['y']
 
         if (x < 0 or z < 0 or
-            x + w > habitacion['ancho'] or
-            z + d > habitacion['profundidad']):
+                x + w > habitacion['ancho'] or
+                z + d > habitacion['profundidad']):
             puntuacion -= 200
 
         objetos.append({
-            'nombre': mueble['nombre'],
+            'tipo': mueble['tipo'],
             'x1': x, 'z1': z,
             'x2': x + w, 'z2': z + d,
             'cx': x + w / 2, 'cz': z + d / 2,
@@ -50,15 +52,17 @@ def fitness(muebles, habitacion, tomas, reglas_adyacencia=[]):
         for j in range(i + 1, len(objetos)):
             o1, o2 = objetos[i], objetos[j]
             intersecta = not (
-                o1['x2'] <= o2['x1'] or o2['x2'] <= o1['x1'] or
-                o1['z2'] <= o2['z1'] or o2['z2'] <= o1['z1']
+                    o1['x2'] <= o2['x1'] or o2['x2'] <= o1['x1'] or
+                    o1['z2'] <= o2['z1'] or o2['z2'] <= o1['z1']
             )
             if intersecta:
                 puntuacion -= 300
 
+    tomas = habitacion["tomas"]
+
     for obj in objetos:
         if obj['requiere_toma']:
-            dist_min = min([calcular_distancia((obj['cx'], obj['cz']), toma) for toma in tomas])
+            dist_min = min([calcular_distancia((obj['cx'], obj['cz']), list(toma.values())) for toma in tomas])
             puntuacion -= dist_min * 5
 
     for obj in objetos:
