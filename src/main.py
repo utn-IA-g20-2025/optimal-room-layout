@@ -57,7 +57,7 @@ creator.create("Individual", list, fitness=creator.FitnessMax)
 toolbox = base.Toolbox()
 toolbox.register("individual", tools.initIterate, creator.Individual, muebles)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-toolbox.register("evaluate", fitness(muebles, habitacion, habitacion["lista_tomas"]))
+toolbox.register("evaluate", fitness, muebles, habitacion)
 
 if config.CONFIG.SELECTION_TYPE == 'Tournament':
     toolbox.register("select", tools.selTournament, tournsize=config.CONFIG.TOURNAMENT_SIZE)
