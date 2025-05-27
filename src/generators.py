@@ -7,7 +7,7 @@ def generar_mueble(info_mueble):
         "id": info_mueble["nombre"],
         "ancho": info_mueble["ancho"],
         "profundidad": info_mueble["profundidad"],
-        "necesita_toma": info_mueble["necesita_toma"],
+        "requiere_toma": info_mueble["requiere_toma"],
         "lado_frontal": info_mueble["lado_frontal"],
         "margen_a": info_mueble["margen_a"],
         "margen_b": info_mueble["margen_b"],
