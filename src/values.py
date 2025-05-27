@@ -21,7 +21,7 @@ class Object:
         self.name = name
         self.width = width
         self.length = length
-        self.power = powered
+        self.powered = powered
         self.front_side = front_side
         self.margin_a = margin_a
         self.margin_b = margin_b
