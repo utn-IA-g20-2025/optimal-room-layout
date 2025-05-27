@@ -1,5 +1,5 @@
 import random
-import config
+from src import config
 import csv
 from deap import base, creator, tools
 
@@ -122,8 +122,7 @@ def execute_ga_with_deap():
 
     with open("../resources/best_habitacion.csv", mode="w", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow(
-            ["ID", "Tipo", "Ancho", "Profundidad", "x", "y", "Rotacion (0-90°)", "Requiere toma", "Debe ir a pared"])
+        writer.writerow(["Mueble", "ID", "Tipo", "Ancho", "Profundidad", "x", "y", "Rotacion (0-90°)", "Requiere toma", "Debe ir a pared"])
         for idx, mueble in enumerate(best_habitacion, start=1):
             writer.writerow([f"Mueble {idx}", mueble["id"], mueble["tipo"], mueble["ancho"],
                              mueble["profundidad"], mueble["x"], mueble["y"],
