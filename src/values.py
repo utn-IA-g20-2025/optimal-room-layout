@@ -130,6 +130,4 @@ HABITACION = {
 }
 
 
-TIPOS = ["Mesa con sillas", "Cama","TV","Biblioteca","sillón", "Escritorio", "Lavarropas"]
-
-CANTIDAD_DE_MUEBLES = len(TIPOS)
+CANTIDAD_DE_MUEBLES = len(MUEBLES)

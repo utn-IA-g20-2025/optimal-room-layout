@@ -3,32 +3,48 @@ import random
 
 from deap import base, creator, tools
 
-from src import values, config
+from src import config
 from src.aptitude import fitness
 from src.generators import generar_mueble, generar_set_muebles
-from src.values import CANTIDAD_DE_MUEBLES
+from src.values import CANTIDAD_DE_MUEBLES, MUEBLES, HABITACION
 
+"""
+    Genera hijos eligiendo el mueble de uno u otro padre de forma aleatoria
+    Args:
+        padre1: Lista de muebles de un padre 
+        padre2: Lista de muebles de otro padre
+    Returns:
+        hijo1, hijo2: Par de hijos, cada uno es una lista de muebles
+    Ejemplo:
+        padre1: [{ "nombre":"Heladera", "x":20, ... }, { "nombre":"Escritorio", "x":100, ... }, ...]
+        padre2: [{ "nombre":"Heladera", "x":250, ... }, { "nombre":"Escritorio", "x":80, ... }, ...]
+        hijo1: [{ "nombre":"Heladera", "x":250, ... }, { "nombre":"Escritorio", "x":100, ... }, ...]
+        hijo2: [{ "nombre":"Heladera", "x":20, ... }, { "nombre":"Escritorio", "x":80, ... }, ...]
+"""
+def crossover_binomial_azar(padre1, padre2):
+    hijo1 = [random.choice([mueble_padre1, mueble_padre2]) for (mueble_padre1, mueble_padre2) in zip(padre1, padre2)]
+    hijo2 = [random.choice([mueble_padre1, mueble_padre2]) for (mueble_padre1, mueble_padre2) in zip(padre1, padre2)]
+    return hijo1, hijo2
 
 def cx_habitacion(ind1, ind2):
     combined = ind1 + ind2
     random.shuffle(combined)
-    tipos_muebles = {}
+    muebles = {}
 
     for mueble in combined:
-        tipo = mueble["tipo"]
-        if tipo not in tipos_muebles:
-            tipos_muebles[tipo] = mueble
+        nombre = mueble["nombre"]
+        if nombre not in muebles:
+            muebles[nombre] = mueble
 
-    new_muebles = list(tipos_muebles.values())
+    new_muebles = list(muebles.values())
 
     while len(new_muebles) < CANTIDAD_DE_MUEBLES:
-        tipo_faltante = random.choice([t for t in values.TIPOS if t not in tipos_muebles])
-        nuevo_mueble = generar_mueble()
-        nuevo_mueble["tipo"] = tipo_faltante
+        mueble_faltante = random.choice([mueble for mueble in MUEBLES if mueble["nombre"] not in muebles])
+        nuevo_mueble = generar_mueble(mueble_faltante)
         new_muebles.append(nuevo_mueble)
 
-    ind1[:] = new_muebles[:values.CANTIDAD_DE_MUEBLES]
-    ind2[:] = new_muebles[:values.CANTIDAD_DE_MUEBLES]
+    ind1[:] = new_muebles[:CANTIDAD_DE_MUEBLES]
+    ind2[:] = new_muebles[:CANTIDAD_DE_MUEBLES]
 
     return ind1, ind2
 
@@ -36,15 +52,9 @@ def cx_habitacion(ind1, ind2):
 def mutar_habitacion(individual):
     for i in range(len(individual)):
         if random.random() < config.CONFIG.MUTATION_PROB:
-            tipo = individual[i]["tipo"]
-            id_original = individual[i]["id"]
-            nuevo_mueble = generar_mueble()
-
-            # Mantener el ID original y el tipo
-            nuevo_mueble["id"] = id_original
-            nuevo_mueble["tipo"] = tipo
-
+            nuevo_mueble = generar_mueble(individual[i])
             individual[i] = nuevo_mueble
+
     return individual
 
 
@@ -70,8 +80,8 @@ toolbox.register("mutate", mutar_habitacion)
 
 
 def execute_ga_with_deap():
-    print("ancho habitacion: ", values.HABITACION["ancho"])
-    print("profundidad habitacion: ", values.HABITACION["profundidad"])
+    print("ancho habitacion: ", HABITACION["ancho"])
+    print("profundidad habitacion: ", HABITACION["profundidad"])
 
     population = toolbox.population(n=config.CONFIG.POPULATION_SIZE)
 
@@ -121,11 +131,11 @@ def execute_ga_with_deap():
 
     with open("../resources/best_habitacion.csv", mode="w", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow(["Mueble", "ID", "Tipo", "Ancho", "Profundidad", "x", "y", "Rotacion (0-90°)", "Requiere toma", "Debe ir a pared"])
-        for idx, mueble in enumerate(best_habitacion, start=1):
-            writer.writerow([f"Mueble {idx}", mueble["id"], mueble["tipo"], mueble["ancho"],
+        writer.writerow(["Mueble", "Ancho", "Profundidad", "x", "y", "Rotacion", "Requiere toma"])
+        for mueble in best_habitacion:
+            writer.writerow([mueble["nombre"], mueble["ancho"],
                              mueble["profundidad"], mueble["x"], mueble["y"],
-                             mueble["rot"], mueble["requiere_toma"], mueble["debe_ir_a_pared"]])
+                             mueble["rot"], mueble["requiere_toma"]])
 
 
 if __name__ == "__main__":
