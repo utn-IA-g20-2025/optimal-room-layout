@@ -90,7 +90,7 @@ def execute_ga_with_deap():
     stats.register("avg", lambda x: sum(fit[0] for fit in x) / len(x))
     stats.register("max", max)
 
-    with open("../resources/resultados.csv", mode="w+", newline="") as file:
+    with open("resources/resultados.csv", mode="w+", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(["Generación", "Fitness Promedio", "Fitness Máximo"])
 
@@ -124,12 +124,12 @@ def execute_ga_with_deap():
     best_habitacion = hof[0]
     print("Best individual:")
     for idx, mueble in enumerate(best_habitacion, start=1):
-        print(f"Integrante {idx} (ID: {mueble['id']}):")
+        print(f"Integrante {idx} (nombre: {mueble['nombre']}):")
         for key, value in mueble.items():
             print(f"  {key}: {value}")
     print("Fitness value:", best_habitacion.fitness.values[0])
 
-    with open("../resources/best_habitacion.csv", mode="w", newline="") as file:
+    with open("resources/best_habitacion.csv", mode="w", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(["Mueble", "Ancho", "Profundidad", "x", "y", "Rotacion", "Requiere toma"])
         for mueble in best_habitacion:

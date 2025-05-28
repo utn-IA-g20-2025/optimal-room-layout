@@ -1,10 +1,10 @@
 import random
 
-from values import MUEBLES, HABITACION
+from src.values import MUEBLES, HABITACION
 
 def generar_mueble(info_mueble):
     return {
-        "id": info_mueble["nombre"],
+        "nombre": info_mueble["nombre"],
         "ancho": info_mueble["ancho"],
         "profundidad": info_mueble["profundidad"],
         "requiere_toma": info_mueble["requiere_toma"],

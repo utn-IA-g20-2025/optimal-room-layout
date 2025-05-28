@@ -1,7 +1,7 @@
 import math
 
 from src import values
-from values import HABITACION
+from src.values import HABITACION
 
 
 def calcular_distancia(p1, p2):
@@ -204,7 +204,7 @@ def fitness(muebles):
         puntuacion -= calcular_penalizacion_fuera_de_limites(x, z, w, d, HABITACION['ancho'], HABITACION['profundidad'])
 
         objetos.append({
-            'tipo': mueble['tipo'],
+            'tipo': mueble['nombre'],
             'x1': x, 'z1': z,
             'x2': x + w, 'z2': z + d,
             'cx': x + w / 2, 'cz': z + d / 2,
