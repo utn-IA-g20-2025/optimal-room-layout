@@ -1,6 +1,6 @@
 import math
 
-from values import HABITACION
+from src.values import HABITACION
 
 
 def calcular_distancia(coordenadas1, coordenadas2):
@@ -173,4 +173,4 @@ def fitness(muebles):
         if mueble1 and mueble2:
             puntuacion += calcular_penalizacion_adyacencia(mueble1, mueble2)
 
-    return puntuacion
+    return puntuacion,
