@@ -4,9 +4,11 @@ import random
 from deap import base, creator, tools
 
 from src import config
-from src.aptitude import fitness
+from src.aptitude import fitness, calcular_bounding_box, se_solapan, unique_permutations
 from src.generators import generar_mueble, generar_set_muebles
 from src.values import CANTIDAD_DE_MUEBLES, MUEBLES, HABITACION
+from src.graph import dibujar_habitacion
+from itertools import combinations
 
 """
     Genera hijos eligiendo el mueble de uno u otro padre de forma aleatoria
@@ -128,14 +130,18 @@ def execute_ga_with_deap():
         for key, value in mueble.items():
             print(f"  {key}: {value}")
     print("Fitness value:", best_habitacion.fitness.values[0])
+    # TODO eliminar, es para debug
+    print("Se solapan: ", [(m1["nombre"],m2["nombre"]) for (m1, m2) in combinations(best_habitacion, 2) if se_solapan(calcular_bounding_box(m1),calcular_bounding_box(m2))])
 
     with open("resources/best_habitacion.csv", mode="w", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow(["Mueble", "Ancho", "Profundidad", "x", "y", "Rotacion", "Requiere toma"])
+        writer.writerow(["Mueble", "Ancho", "Profundidad", "x", "y", "Rotacion", "Bounding Box", "Requiere toma"])
         for mueble in best_habitacion:
             writer.writerow([mueble["nombre"], mueble["ancho"],
                              mueble["profundidad"], mueble["x"], mueble["y"],
-                             mueble["rot"], mueble["requiere_toma"]])
+                             mueble["rot"], calcular_bounding_box(mueble), mueble["requiere_toma"]])
+
+    dibujar_habitacion(best_habitacion, HABITACION)
 
 
 if __name__ == "__main__":

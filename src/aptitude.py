@@ -1,4 +1,5 @@
 import math
+from itertools import combinations, permutations
 
 from src.values import HABITACION
 
@@ -26,9 +27,9 @@ def calcular_bounding_box(mueble):
         mueble["rot"]
     )
     if rot in (0, 180):
-        return x + ancho / 2, y + profundidad / 2, x - ancho / 2, y - profundidad / 2
+        return x - ancho / 2, y - profundidad / 2, x + ancho / 2, y + profundidad / 2
     else: # 90, 270
-        return x + profundidad / 2, y + ancho / 2, x - profundidad / 2, y - ancho / 2
+        return x - profundidad / 2, y - ancho / 2, x + profundidad / 2, y + ancho / 2
 
 
 def calcular_distancia_a_pared(mueble):
@@ -61,7 +62,7 @@ def calcular_distancia_a_toma(mueble):
     ])
 
 
-def calcular_solapamiento(bbox1, bbox2):
+def se_solapan(bbox1, bbox2):
     """
     Calcula si dos bounding boxes se solapan.
     Args:
@@ -70,12 +71,36 @@ def calcular_solapamiento(bbox1, bbox2):
     Returns:
         bool: True si los bounding boxes se solapan, False en caso contrario.
     """
+    x1_min, y1_min, x1_max, y1_max = bbox1[0], bbox1[1], bbox1[2], bbox1[3]
+    x2_min, y2_min, x2_max, y2_max = bbox2[0], bbox2[1], bbox2[2], bbox2[3]
     # TODO: faltaria tener en cuenta los margenes
-    return not (
-            bbox1[2] <= bbox2[0] or bbox2[2] <= bbox1[0] or
-            bbox1[3] <= bbox2[1] or bbox2[3] <= bbox1[1]
-    )
+    if x1_max <= x2_min or x2_max <= x1_min:
+        return False
+    if y1_max <= y2_min or y2_max <= y1_min:
+        return False
+    return True
 
+def calcular_penalizacion_fuera_de_limites(mueble):
+    """
+    Calcula la penalización por estar fuera de los límites de la habitación.
+    Args:
+        x: Coordenada x del centro del objeto.
+        y: Coordenada y del centro del objeto.
+        ancho: Ancho del objeto.
+        profundidad: Profundidad del objeto.
+        ancho_habitacion: Ancho de la habitación.
+        profundidad_habitacion: Profundidad de la habitación.
+    Returns:
+        float: La penalización por estar fuera de los límites.
+    """
+    bbox = calcular_bounding_box(mueble)
+    if (bbox[0] > HABITACION["ancho"] or
+        bbox[1] > HABITACION["profundidad"] or
+        bbox[2] > HABITACION["ancho"] or
+        bbox[3] > HABITACION["profundidad"] or
+        bbox[0] < 0 or bbox[1] < 0 or bbox[2] < 0 or bbox[3] < 0):
+        return 200
+    return 0
 
 def calcular_penalizacion_adyacencia(mueble1, mueble2):
     """
@@ -105,7 +130,7 @@ def calcular_penalizacion_solapamiento(mueble1, mueble2):
     """
     bbox1 = calcular_bounding_box(mueble1)
     bbox2 = calcular_bounding_box(mueble2)
-    if calcular_solapamiento(bbox1, bbox2):
+    if se_solapan(bbox1, bbox2):
         return 300
     return 0
 
@@ -140,6 +165,24 @@ def calcular_penalizacion_pared(mueble):
     return 0
 
 
+def unique_permutations(input_list, r):
+    """
+    Generates unique permutations of a list, excluding reversed duplicates.
+
+    Args:
+        input_list: The list for which permutations are generated.
+
+    Returns:
+        A list of tuples, where each tuple is a unique permutation.
+    """
+    seen = []
+    result = []
+    for perm in permutations(input_list, r):
+        if tuple(reversed(perm)) not in seen:
+            seen.append(perm)
+            result.append(perm)
+    return result
+
 def fitness(muebles):
     """
     Calcula la puntuación de aptitud para una disposición de muebles en la habitación.
@@ -159,13 +202,13 @@ def fitness(muebles):
     """
     puntuacion = 1000  # base
 
-    for i in range(len(muebles)):
-        for j in range(i + 1, len(muebles)):
-            puntuacion -= calcular_penalizacion_solapamiento(muebles[i], muebles[j])
+    for (mueble1, mueble2) in combinations(muebles, 2):
+        puntuacion -= calcular_penalizacion_solapamiento(mueble1, mueble2)
 
     for mueble in muebles:
         puntuacion -= calcular_penalizacion_toma(mueble)
         puntuacion -= calcular_penalizacion_pared(mueble)
+        puntuacion -= calcular_penalizacion_fuera_de_limites(mueble)
 
     for nombre1, nombre2 in HABITACION["reglas_adyacencia"]:
         mueble1 = next((mueble for mueble in muebles if mueble['nombre'] == nombre1), None)
