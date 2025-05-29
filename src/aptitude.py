@@ -71,14 +71,11 @@ def se_solapan(bbox1, bbox2):
     Returns:
         bool: True si los bounding boxes se solapan, False en caso contrario.
     """
-    x1_min, y1_min, x1_max, y1_max = bbox1[0], bbox1[1], bbox1[2], bbox1[3]
-    x2_min, y2_min, x2_max, y2_max = bbox2[0], bbox2[1], bbox2[2], bbox2[3]
     # TODO: faltaria tener en cuenta los margenes
-    if x1_max <= x2_min or x2_max <= x1_min:
-        return False
-    if y1_max <= y2_min or y2_max <= y1_min:
-        return False
-    return True
+    return not (
+            bbox1[2] <= bbox2[0] or bbox2[2] <= bbox1[0] or
+            bbox1[3] <= bbox2[1] or bbox2[3] <= bbox1[1]
+    )
 
 def calcular_penalizacion_fuera_de_limites(mueble):
     """
@@ -164,24 +161,6 @@ def calcular_penalizacion_pared(mueble):
         return dist_pared * 2
     return 0
 
-
-def unique_permutations(input_list, r):
-    """
-    Generates unique permutations of a list, excluding reversed duplicates.
-
-    Args:
-        input_list: The list for which permutations are generated.
-
-    Returns:
-        A list of tuples, where each tuple is a unique permutation.
-    """
-    seen = []
-    result = []
-    for perm in permutations(input_list, r):
-        if tuple(reversed(perm)) not in seen:
-            seen.append(perm)
-            result.append(perm)
-    return result
 
 def fitness(muebles):
     """
