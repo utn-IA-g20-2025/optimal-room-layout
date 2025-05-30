@@ -44,13 +44,13 @@ cama = {
 
 tv = {
     "nombre": "TV",
-    "ancho": 8,
-    "profundidad": 145,
+    "ancho": 145,
+    "profundidad": 8,
     "requiere_toma": True,
-    "lado_frontal": "b",
+    "lado_frontal": "c",
     "margen_a": 20,
-    "margen_b": 80,
-    "margen_c": 20,
+    "margen_b": 20,
+    "margen_c": 80,
     "margen_d": 20
 }
 
@@ -59,23 +59,23 @@ biblioteca = {
     "ancho": 60,
     "profundidad": 40,
     "requiere_toma": False,
-    "lado_frontal": "b",
+    "lado_frontal": "c",
     "margen_a": 5,
-    "margen_b": 40,
-    "margen_c": 5,
+    "margen_b": 5,
+    "margen_c": 40,
     "margen_d": 5
 }
 
 sillon = {
     "nombre": "Sillón",
-    "ancho": 80,
-    "profundidad": 180,
+    "ancho": 180,
+    "profundidad": 80,
     "requiere_toma": False,
-    "lado_frontal": "d",
-    "margen_a": 0,
+    "lado_frontal": "a",
+    "margen_a": 60,
     "margen_b": 0,
     "margen_c": 0,
-    "margen_d": 60
+    "margen_d": 0
 }
 
 escritorio = {
@@ -83,9 +83,9 @@ escritorio = {
     "ancho": 120,
     "profundidad": 60,
     "requiere_toma": False,
-    "lado_frontal": "b",
-    "margen_a": 5,
-    "margen_b": 60,
+    "lado_frontal": "a",
+    "margen_a": 60,
+    "margen_b": 5,
     "margen_c": 5,
     "margen_d": 5
 }
@@ -107,11 +107,11 @@ heladera = {
     "ancho": 60,
     "profundidad": 64,
     "requiere_toma": True,
-    "lado_frontal": "b",
-    "margen_a": 10,
-    "margen_b": 60,
-    "margen_c": 10,
-    "margen_d": 15
+    "lado_frontal": "c",
+    "margen_a": 15,
+    "margen_b": 10,
+    "margen_c": 60,
+    "margen_d": 10
 }
 
 MUEBLES = [ mesa_con_sillas, cama, tv, biblioteca, sillon, escritorio, lavarropas, heladera ]
@@ -134,8 +134,7 @@ HABITACION = {
         }
     ],
     # TODO reglas_adyacencia: lista de tuplas con nombres de muebles que deben estar juntos.
-    # nota: usar mueble["nombre"]
-    "reglas_adyacencia": []
+    "reglas_adyacencia": [ (tv, sillon), (escritorio, biblioteca) ]
 }
 
 

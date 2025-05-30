@@ -1,6 +1,28 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
+def dibujar_margen(ax, x0, y0, margen, angulo, ancho_mueble, profundidad_mueble):
+    if angulo == 90:
+        ax.add_patch(patches.Rectangle((x0, y0 + profundidad_mueble),
+                                       ancho_mueble, margen,
+                                       linewidth=1, edgecolor='gray',
+                                       linestyle='dotted', fill=False))
+    elif angulo == 0:
+        ax.add_patch(patches.Rectangle((x0 + ancho_mueble, y0),
+                                       margen, profundidad_mueble,
+                                       linewidth=1, edgecolor='gray',
+                                       linestyle='dotted', fill=False))
+    elif angulo == 270:
+        ax.add_patch(patches.Rectangle((x0, y0 - margen),
+                                       ancho_mueble, margen,
+                                       linewidth=1, edgecolor='gray',
+                                       linestyle='dotted', fill=False))
+    if angulo == 180:
+        ax.add_patch(patches.Rectangle((x0 - margen, y0),
+                                       margen, profundidad_mueble,
+                                       linewidth=1, edgecolor='gray',
+                                       linestyle='dotted', fill=False))
+
 def dibujar_habitacion(muebles, habitacion):
     fig, ax = plt.subplots()
     ax.set_xlim(0, habitacion["ancho"])
@@ -16,9 +38,6 @@ def dibujar_habitacion(muebles, habitacion):
     for toma in habitacion["tomas"]:
         ax.plot(toma["x"], toma["y"], marker='o', color='red')
         ax.text(toma["x"] + 3, toma["y"] + 3, 'Toma', color='red', fontsize=8)
-
-    # Lados para márgenes
-    lados = ['a', 'b', 'c', 'd']
 
     # Dibujar cada mueble
     for m in muebles:
@@ -41,66 +60,46 @@ def dibujar_habitacion(muebles, habitacion):
         ax.text(x, y, m["nombre"],
                 ha='center', va='center', fontsize=8)
 
-        # Dibujar márgenes como líneas punteadas
-        margenes = {
-            'a': m['margen_a'],
-            'b': m['margen_b'],
-            'c': m['margen_c'],
-            'd': m['margen_d']
+        lados_segun_rotacion = {
+            0: {"a": 90, "b": 0, "c": 270, "d": 180},
+            90: {"b": 90, "c": 0, "d": 270, "a": 180},
+            180: {"c": 90, "d": 0, "a": 270, "b": 180},
+            270: {"d": 90, "a": 0, "b": 270, "c": 180},
         }
 
         lado_frontal = m["lado_frontal"]
         if lado_frontal:
-            lado_to_angulo = {'a': 90, 'b': 0, 'c': 270, 'd': 180}
-            angulo_frontal = (lado_to_angulo[lado_frontal] + m["rot"]) % 360
+            angulo_frontal = lados_segun_rotacion[rot][lado_frontal]
 
             # Coordenadas de inicio de la flecha (centro del lado frontal)
             if angulo_frontal == 0:  # Derecha
-                fx, fy = x, y
+                fx, fy = x + ancho / 2, y
                 dx, dy = 10, 0
             elif angulo_frontal == 90:  # Arriba
-                fx, fy = x, y
+                fx, fy = x, y + profundidad / 2
                 dx, dy = 0, 10
             elif angulo_frontal == 180:  # Izquierda
-                fx, fy = x, y
+                fx, fy = x - ancho / 2, y
                 dx, dy = -10, 0
             elif angulo_frontal == 270:  # Abajo
-                fx, fy = x, y
+                fx, fy = x, y - profundidad / 2
                 dx, dy = 0, -10
 
             ax.arrow(fx, fy, dx, dy, head_width=5, head_length=5, fc='green', ec='green')
 
 
-        # Ajustar según rotación
-        rot_map = {0: ['b', 'a', 'd', 'c'],
-                   90: ['a', 'd', 'c', 'b'],
-                   180: ['d', 'c', 'b', 'a'],
-                   270: ['c', 'b', 'a', 'd']}
-        rotados = rot_map[rot]
-        margenes_rotados = {lado: margenes[rotados[i]] for i, lado in enumerate(lados)}
+        # Dibujar márgenes
+        margen_a, margen_b, margen_c, margen_d = m["margen_a"], m["margen_b"], m["margen_c"], m["margen_d"]
 
-        # Dibujar cada margen
-        if margenes_rotados['a'] > 0:
-            ax.add_patch(patches.Rectangle((x0, y0 + profundidad),
-                                           ancho, margenes_rotados['a'],
-                                           linewidth=1, edgecolor='gray',
-                                           linestyle='dotted', fill=False))
-        if margenes_rotados['b'] > 0:
-            ax.add_patch(patches.Rectangle((x0 - margenes_rotados['b'], y0),
-                                           margenes_rotados['b'], profundidad,
-                                           linewidth=1, edgecolor='gray',
-                                           linestyle='dotted', fill=False))
-        if margenes_rotados['c'] > 0:
-            ax.add_patch(patches.Rectangle((x0, y0 - margenes_rotados['c']),
-                                           ancho, margenes_rotados['c'],
-                                           linewidth=1, edgecolor='gray',
-                                           linestyle='dotted', fill=False))
-        if margenes_rotados['d'] > 0:
-            ax.add_patch(patches.Rectangle((x0 + ancho, y0),
-                                           margenes_rotados['d'], profundidad,
-                                           linewidth=1, edgecolor='gray',
-                                           linestyle='dotted', fill=False))
+        if margen_a and margen_a > 0:
+            dibujar_margen(ax, x0, y0, margen_a, lados_segun_rotacion[rot]["a"], ancho, profundidad)
+        if margen_b and margen_b > 0:
+            dibujar_margen(ax, x0, y0, margen_b, lados_segun_rotacion[rot]["b"], ancho, profundidad)
+        if margen_c and margen_c > 0:
+            dibujar_margen(ax, x0, y0, margen_c, lados_segun_rotacion[rot]["c"], ancho, profundidad)
+        if margen_d and margen_d > 0:
+            dibujar_margen(ax, x0, y0, margen_d, lados_segun_rotacion[rot]["d"], ancho, profundidad)
 
-    #plt.gca().invert_yaxis()  # Para que (0,0) esté en la esquina superior izquierda
+
     plt.grid(True)
     plt.show()

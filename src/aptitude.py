@@ -10,6 +10,29 @@ def calcular_distancia(coordenadas1, coordenadas2):
         (coordenadas1[1] - coordenadas2[1]) ** 2
     )
 
+def calcular_distancia_minima(bbox1, bbox2):
+    """
+    Calcula la distancia mínima entre dos bounding boxes.
+    """
+    if se_solapan(bbox1, bbox2):
+        return 0
+
+    x1_min, y1_min, x1_max, y1_max = bbox1
+    x2_min, y2_min, x2_max, y2_max = bbox2
+
+    # Distancia horizontal
+    if x1_max < x2_min:
+        dx = x2_min - x1_max
+    else:
+        dx = x1_min - x2_max
+
+    # Distancia vertical
+    if y1_max < y2_min:
+        dy = y2_min - y1_max
+    else:
+        dy = y1_min - y2_max
+
+    return math.sqrt(dx ** 2 + dy ** 2)
 
 def calcular_bounding_box(mueble):
     """
@@ -107,13 +130,16 @@ def calcular_penalizacion_adyacencia(mueble1, mueble2):
     Returns:
         float: La penalización o recompensa por la adyacencia.
     """
-    distancia = calcular_distancia(
-        (mueble1["x"], mueble1["y"]),
-        (mueble2["x"], mueble2["y"])
-    )
-    if distancia <= 1:
-        return 150
-    return -distancia * 10
+    bbox1 = calcular_bounding_box(mueble1)
+    bbox2 = calcular_bounding_box(mueble2)
+
+    if se_solapan(bbox1, bbox2):
+        return 1000
+
+    distancia = calcular_distancia_minima(bbox1, bbox2)
+    if distancia <= 10:
+        return -500 # recompensa
+    return distancia * 10
 
 
 def calcular_penalizacion_solapamiento(mueble1, mueble2):
@@ -128,7 +154,7 @@ def calcular_penalizacion_solapamiento(mueble1, mueble2):
     bbox1 = calcular_bounding_box(mueble1)
     bbox2 = calcular_bounding_box(mueble2)
     if se_solapan(bbox1, bbox2):
-        return 300
+        return 1000
     return 0
 
 
@@ -189,10 +215,10 @@ def fitness(muebles):
         puntuacion -= calcular_penalizacion_pared(mueble)
         puntuacion -= calcular_penalizacion_fuera_de_limites(mueble)
 
-    for nombre1, nombre2 in HABITACION["reglas_adyacencia"]:
-        mueble1 = next((mueble for mueble in muebles if mueble['nombre'] == nombre1), None)
-        mueble2 = next((mueble for mueble in muebles if mueble['nombre'] == nombre2), None)
+    for regla in HABITACION["reglas_adyacencia"]:
+        mueble1 = next((mueble for mueble in muebles if mueble['nombre'] == regla[0]["nombre"]), None)
+        mueble2 = next((mueble for mueble in muebles if mueble['nombre'] == regla[1]["nombre"]), None)
         if mueble1 and mueble2:
-            puntuacion += calcular_penalizacion_adyacencia(mueble1, mueble2)
+            puntuacion -= calcular_penalizacion_adyacencia(mueble1, mueble2)
 
     return puntuacion,
