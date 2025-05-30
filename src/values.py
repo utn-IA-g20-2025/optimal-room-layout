@@ -82,7 +82,7 @@ escritorio = {
     "nombre": "Escritorio",
     "ancho": 120,
     "profundidad": 60,
-    "requiere_toma": False,
+    "requiere_toma": True,
     "lado_frontal": "a",
     "margen_a": 60,
     "margen_b": 5,
@@ -114,11 +114,11 @@ heladera = {
     "margen_d": 10
 }
 
-MUEBLES = [ mesa_con_sillas, cama, tv, biblioteca, sillon, escritorio, lavarropas, heladera ]
+MUEBLES = [ mesa_con_sillas, tv, biblioteca, sillon, escritorio ]
 
 HABITACION = {
     "ancho": 400,
-    "profundidad": 500,
+    "profundidad": 400,
     "tomas": [
         {
             "x": 42,
@@ -131,10 +131,14 @@ HABITACION = {
         {
             "x": 0,
             "y": 80
+        },
+        {
+            "x": 400,
+            "y": 250
         }
     ],
     # TODO reglas_adyacencia: lista de tuplas con nombres de muebles que deben estar juntos.
-    "reglas_adyacencia": [ (tv, sillon), (escritorio, biblioteca) ]
+    "reglas_adyacencia": [ (escritorio, biblioteca), (tv, sillon) ]
 }
 
 
