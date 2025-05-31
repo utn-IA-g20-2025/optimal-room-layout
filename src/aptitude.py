@@ -127,7 +127,7 @@ def calcular_penalizacion_fuera_de_limites(mueble):
         bbox[1] < 0 or
         bbox[2] > HABITACION["ancho"] or
         bbox[3] > HABITACION["profundidad"]):
-        return 550
+        return 200
     return 0
 
 def calcular_penalizacion_adyacencia(mueble1, mueble2):
@@ -162,7 +162,7 @@ def calcular_penalizacion_solapamiento(mueble1, mueble2):
     bbox1 = calcular_bounding_box(mueble1)
     bbox2 = calcular_bounding_box(mueble2)
     if se_solapan(bbox1, bbox2):
-        return 500
+        return 800
     return 0
 
 
