@@ -128,12 +128,13 @@ def execute_ga_with_deap():
     best_habitacion = hof[0]
     print("Best individual:")
     for idx, mueble in enumerate(best_habitacion, start=1):
-        print(f"Integrante {idx} (nombre: {mueble['nombre']}):")
+        print(f"Integrate {idx} (nombre: {mueble['nombre']}):")
         for key, value in mueble.items():
             print(f"  {key}: {value}")
     print("Fitness value:", best_habitacion.fitness.values[0])
     # TODO eliminar, es para debug
     print("Se solapan: ", [(m1["nombre"],m2["nombre"]) for (m1, m2) in combinations(best_habitacion, 2) if se_solapan(calcular_bounding_box(m1),calcular_bounding_box(m2))])
+    print("A pared: ", [mueble["nombre"] for mueble in best_habitacion if mueble["debe_ir_a_pared"]])
 
     with open("resources/best_habitacion.csv", mode="w", newline="") as file:
         writer = csv.writer(file)

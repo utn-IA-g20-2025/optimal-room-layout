@@ -74,11 +74,24 @@ def calcular_distancia_a_pared(mueble):
         float: La distancia mínima a la pared.
     """
     bbox = calcular_bounding_box(mueble)
-    return min(
-        bbox[0], bbox[1],
-        HABITACION["ancho"] - bbox[2],
-        HABITACION["profundidad"] - bbox[3]
-    )
+    if mueble["lado_frontal"]:
+        sentido = sentido_por_lado_segun_rotacion[mueble["rot"]][mueble["lado_frontal"]]
+        if sentido == 0:
+            return bbox[0]
+        elif sentido == 90:
+            return bbox[1]
+        elif sentido == 180:
+            return HABITACION["ancho"] - bbox[2]
+        else:
+            return HABITACION["profundidad"] - bbox[3]
+    else:
+        return min(
+            bbox[0], bbox[1],
+            HABITACION["ancho"] - bbox[2],
+            HABITACION["profundidad"] - bbox[3]
+        )
+
+
 
 
 def calcular_distancia_a_toma(mueble):
@@ -188,11 +201,9 @@ def calcular_penalizacion_pared(mueble):
     Returns:
         float: La penalización por la distancia a la pared.
     """
-    # TODO: esta condicion debería depender de si el mueble tiene cara frontal, y si esa cara esta apuntando hacia la pared o no
-    debe_ir_a_pared = False
-    if debe_ir_a_pared:
+    if mueble["debe_ir_a_pared"]:
         dist_pared = calcular_distancia_a_pared(mueble)
-        return dist_pared * 2
+        return dist_pared * 20
     return 0
 
 """
