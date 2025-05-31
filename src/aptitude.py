@@ -42,17 +42,27 @@ def calcular_bounding_box(mueble):
     Returns:
         tuple: (x1, y1, x2, y2) representando el bounding box.
     """
-    x, y, ancho, profundidad, rot = (
+    x, y, ancho, profundidad, rot, ma, mb, mc, md = (
         mueble["x"],
         mueble["y"],
         mueble["ancho"],
         mueble["profundidad"],
-        mueble["rot"]
+        mueble["rot"],
+        mueble["margen_a"],
+        mueble["margen_b"],
+        mueble["margen_c"],
+        mueble["margen_d"]
     )
-    if rot in (0, 180):
-        return x - ancho / 2, y - profundidad / 2, x + ancho / 2, y + profundidad / 2
-    else: # 90, 270
-        return x - profundidad / 2, y - ancho / 2, x + profundidad / 2, y + ancho / 2
+    mitad_ancho = ancho / 2
+    mitad_prof = profundidad / 2
+    if rot == 0:
+        return x - mitad_ancho - md, y - mitad_prof - mc, x + mitad_ancho + mb, y + mitad_prof + ma
+    elif rot == 90:
+        return x - mitad_prof - ma, y - mitad_ancho - md, x + mitad_prof + mc, y + mitad_ancho + mb
+    elif rot == 180:
+        return x - mitad_ancho - mb, y - mitad_prof - ma, x + mitad_ancho + md, y + mitad_prof + mc
+    else: #270
+        return x - mitad_prof - mc, y - mitad_ancho - mb, x + mitad_prof + ma, y + mitad_ancho + md
 
 
 def calcular_distancia_a_pared(mueble):
@@ -94,7 +104,6 @@ def se_solapan(bbox1, bbox2):
     Returns:
         bool: True si los bounding boxes se solapan, False en caso contrario.
     """
-    # TODO: faltaria tener en cuenta los margenes
     return not (
             bbox1[2] <= bbox2[0] or bbox2[2] <= bbox1[0] or
             bbox1[3] <= bbox2[1] or bbox2[3] <= bbox1[1]
@@ -114,11 +123,10 @@ def calcular_penalizacion_fuera_de_limites(mueble):
         float: La penalización por estar fuera de los límites.
     """
     bbox = calcular_bounding_box(mueble)
-    if (bbox[0] > HABITACION["ancho"] or
-        bbox[1] > HABITACION["profundidad"] or
+    if (bbox[0] < 0 or
+        bbox[1] < 0 or
         bbox[2] > HABITACION["ancho"] or
-        bbox[3] > HABITACION["profundidad"] or
-        bbox[0] < 0 or bbox[1] < 0 or bbox[2] < 0 or bbox[3] < 0):
+        bbox[3] > HABITACION["profundidad"]):
         return 200
     return 0
 
@@ -134,10 +142,10 @@ def calcular_penalizacion_adyacencia(mueble1, mueble2):
     bbox2 = calcular_bounding_box(mueble2)
 
     if se_solapan(bbox1, bbox2):
-        return 1000
+        return 300
 
     distancia = calcular_distancia_minima(bbox1, bbox2)
-    if distancia <= 10:
+    if distancia <= 1:
         return -500 # recompensa
     return distancia * 10
 
@@ -154,7 +162,7 @@ def calcular_penalizacion_solapamiento(mueble1, mueble2):
     bbox1 = calcular_bounding_box(mueble1)
     bbox2 = calcular_bounding_box(mueble2)
     if se_solapan(bbox1, bbox2):
-        return 1000
+        return 800
     return 0
 
 

@@ -23,6 +23,7 @@ mesa_con_sillas = {
     "ancho": 95,
     "profundidad": 160,
     "requiere_toma": False,
+    "debe_ir_a_pared": False,
     "lado_frontal": None,
     "margen_a": 20,
     "margen_b": 20,
@@ -35,6 +36,7 @@ cama = {
     "ancho": 140,
     "profundidad": 190,
     "requiere_toma": False,
+    "debe_ir_a_pared": True,
     "lado_frontal": None,
     "margen_a": 25,
     "margen_b": 25,
@@ -47,6 +49,7 @@ tv = {
     "ancho": 145,
     "profundidad": 8,
     "requiere_toma": True,
+    "debe_ir_a_pared": False,
     "lado_frontal": "c",
     "margen_a": 20,
     "margen_b": 20,
@@ -59,6 +62,7 @@ biblioteca = {
     "ancho": 60,
     "profundidad": 40,
     "requiere_toma": False,
+    "debe_ir_a_pared": True,
     "lado_frontal": "c",
     "margen_a": 5,
     "margen_b": 5,
@@ -71,6 +75,7 @@ sillon = {
     "ancho": 180,
     "profundidad": 80,
     "requiere_toma": False,
+    "debe_ir_a_pared": False,
     "lado_frontal": "a",
     "margen_a": 60,
     "margen_b": 0,
@@ -82,7 +87,8 @@ escritorio = {
     "nombre": "Escritorio",
     "ancho": 120,
     "profundidad": 60,
-    "requiere_toma": False,
+    "requiere_toma": True,
+    "debe_ir_a_pared": False,
     "lado_frontal": "a",
     "margen_a": 60,
     "margen_b": 5,
@@ -95,6 +101,7 @@ lavarropas = {
     "ancho": 54,
     "profundidad": 54,
     "requiere_toma": True,
+    "debe_ir_a_pared": True,
     "lado_frontal": "a",
     "margen_a": 40,
     "margen_b": 10,
@@ -107,6 +114,7 @@ heladera = {
     "ancho": 60,
     "profundidad": 64,
     "requiere_toma": True,
+    "debe_ir_a_pared": True,
     "lado_frontal": "c",
     "margen_a": 15,
     "margen_b": 10,
@@ -114,10 +122,10 @@ heladera = {
     "margen_d": 10
 }
 
-MUEBLES = [ mesa_con_sillas, cama, tv, biblioteca, sillon, escritorio, lavarropas, heladera ]
+MUEBLES = [ mesa_con_sillas, tv, biblioteca, sillon, escritorio, heladera, lavarropas, cama ]
 
 HABITACION = {
-    "ancho": 400,
+    "ancho": 800,
     "profundidad": 500,
     "tomas": [
         {
@@ -131,10 +139,15 @@ HABITACION = {
         {
             "x": 0,
             "y": 80
+        },
+        {
+            "x": 800,
+            "y": 250
         }
     ],
     # TODO reglas_adyacencia: lista de tuplas con nombres de muebles que deben estar juntos.
-    "reglas_adyacencia": [ (tv, sillon), (escritorio, biblioteca) ]
+    "reglas_adyacencia": [ (escritorio, biblioteca), (tv, sillon), (heladera, lavarropas) ],
+    "reglas_enfrentamiento": [ (tv, sillon), (tv, mesa_con_sillas) ]
 }
 
 

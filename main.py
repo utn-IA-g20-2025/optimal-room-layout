@@ -77,6 +77,8 @@ elif config.CONFIG.SELECTION_TYPE == 'Rank':
 
 if config.CONFIG.CROSSOVER_TYPE == 'cx_habitacion':
     toolbox.register("mate", cx_habitacion)
+elif config.CONFIG.CROSSOVER_TYPE == 'crossover_binomial_azar':
+    toolbox.register("mate", crossover_binomial_azar)
 
 toolbox.register("mutate", mutar_habitacion)
 
