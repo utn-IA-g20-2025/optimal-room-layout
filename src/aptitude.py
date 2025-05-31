@@ -195,6 +195,59 @@ def calcular_penalizacion_pared(mueble):
         return dist_pared * 2
     return 0
 
+"""
+Ej, si el objeto esta rotado a 0°:
+          (90°)
+            A
+         +----+
+(180°) D |    | B (0°)
+         +----+
+            C       
+          (270°)
+          
+Si el objeto esta rotado a 90°:
+          (90°)
+            B
+         +----+
+(180°) A |    | C (0°)
+         +----+
+            D       
+          (270°)
+          
+etc
+"""
+sentido_por_lado_segun_rotacion = {
+    0: {"a": 90, "b": 0, "c": 270, "d": 180},
+    90: {"b": 90, "c": 0, "d": 270, "a": 180},
+    180: {"c": 90, "d": 0, "a": 270, "b": 180},
+    270: {"d": 90, "a": 0, "b": 270, "c": 180},
+}
+
+def calcular_penalizacion_enfrentamiento(mueble1, mueble2):
+    sentido_lado_frontal1 = sentido_por_lado_segun_rotacion[mueble1["rot"]][mueble1["lado_frontal"]]
+    sentido_lado_frontal2 = sentido_por_lado_segun_rotacion[mueble2["rot"]][mueble2["lado_frontal"]]
+    lados_son_opuestos = abs(sentido_lado_frontal1 - sentido_lado_frontal2) == 180
+    if lados_son_opuestos:
+        (x1_min, y1_min, x1_max, y1_max) = calcular_bounding_box(mueble1)
+        (x2_min, y2_min, x2_max, y2_max) = calcular_bounding_box(mueble2)
+        if sentido_lado_frontal1 in (0, 180):
+            if y1_max - y1_min <= y2_max - y2_min:
+                estan_enfrentados = y1_min >= y2_min and y1_max <= y2_max
+            else:
+                estan_enfrentados = y2_min >= y1_min and y2_max <= y1_max
+        else:
+            if x1_max - x1_min <= x2_max - x2_min:
+                estan_enfrentados = x1_min >= x2_min and x1_max <= x2_max
+            else:
+                estan_enfrentados = x2_min >= x1_min and x2_max <= x1_max
+
+        if estan_enfrentados:
+            return -800 # recompensa
+        else:
+            return 1500
+    else:
+        return 1500
+
 
 def fitness(muebles):
     """
@@ -228,5 +281,11 @@ def fitness(muebles):
         mueble2 = next((mueble for mueble in muebles if mueble['nombre'] == regla[1]["nombre"]), None)
         if mueble1 and mueble2:
             puntuacion -= calcular_penalizacion_adyacencia(mueble1, mueble2)
+
+    for regla in HABITACION["reglas_enfrentamiento"]:
+        mueble1 = next((mueble for mueble in muebles if mueble['nombre'] == regla[0]["nombre"]), None)
+        mueble2 = next((mueble for mueble in muebles if mueble['nombre'] == regla[1]["nombre"]), None)
+        if mueble1 and mueble2 and mueble1["lado_frontal"] and mueble2["lado_frontal"]:
+            puntuacion -= calcular_penalizacion_enfrentamiento(mueble1, mueble2)
 
     return puntuacion,

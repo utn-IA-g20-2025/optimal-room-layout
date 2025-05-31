@@ -1,6 +1,9 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
+from src.aptitude import sentido_por_lado_segun_rotacion
+
+
 def dibujar_margen(ax, x0, y0, margen, angulo, ancho_mueble, profundidad_mueble):
     if angulo == 90:
         ax.add_patch(patches.Rectangle((x0, y0 + profundidad_mueble),
@@ -60,31 +63,24 @@ def dibujar_habitacion(muebles, habitacion):
         ax.text(x, y, m["nombre"],
                 ha='center', va='center', fontsize=8)
 
-        lados_segun_rotacion = {
-            0: {"a": 90, "b": 0, "c": 270, "d": 180},
-            90: {"b": 90, "c": 0, "d": 270, "a": 180},
-            180: {"c": 90, "d": 0, "a": 270, "b": 180},
-            270: {"d": 90, "a": 0, "b": 270, "c": 180},
-        }
-
         lado_frontal = m["lado_frontal"]
         if lado_frontal:
-            angulo_frontal = lados_segun_rotacion[rot][lado_frontal]
+            sentido = sentido_por_lado_segun_rotacion[rot][lado_frontal]
 
-            # Coordenadas de inicio de la flecha (centro del lado frontal)
-            if angulo_frontal == 0:  # Derecha
-                fx, fy = x + ancho / 2, y
-                dx, dy = 10, 0
-            elif angulo_frontal == 90:  # Arriba
+            if sentido == 90: # arriba
                 fx, fy = x, y + profundidad / 2
                 dx, dy = 0, 10
-            elif angulo_frontal == 180:  # Izquierda
-                fx, fy = x - ancho / 2, y
-                dx, dy = -10, 0
-            elif angulo_frontal == 270:  # Abajo
+            elif sentido == 0: # derecha
+                fx, fy = x + ancho / 2, y
+                dx, dy = 10, 0
+            elif sentido == 270: # abajo
                 fx, fy = x, y - profundidad / 2
                 dx, dy = 0, -10
+            else: # 180, izquierda
+                fx, fy = x - ancho / 2, y
+                dx, dy = -10, 0
 
+            # Coordenadas de inicio de la flecha (centro del lado frontal)
             ax.arrow(fx, fy, dx, dy, head_width=5, head_length=5, fc='green', ec='green')
 
 
@@ -92,13 +88,13 @@ def dibujar_habitacion(muebles, habitacion):
         margen_a, margen_b, margen_c, margen_d = m["margen_a"], m["margen_b"], m["margen_c"], m["margen_d"]
 
         if margen_a and margen_a > 0:
-            dibujar_margen(ax, x0, y0, margen_a, lados_segun_rotacion[rot]["a"], ancho, profundidad)
+            dibujar_margen(ax, x0, y0, margen_a, sentido_por_lado_segun_rotacion[rot]["a"], ancho, profundidad)
         if margen_b and margen_b > 0:
-            dibujar_margen(ax, x0, y0, margen_b, lados_segun_rotacion[rot]["b"], ancho, profundidad)
+            dibujar_margen(ax, x0, y0, margen_b, sentido_por_lado_segun_rotacion[rot]["b"], ancho, profundidad)
         if margen_c and margen_c > 0:
-            dibujar_margen(ax, x0, y0, margen_c, lados_segun_rotacion[rot]["c"], ancho, profundidad)
+            dibujar_margen(ax, x0, y0, margen_c, sentido_por_lado_segun_rotacion[rot]["c"], ancho, profundidad)
         if margen_d and margen_d > 0:
-            dibujar_margen(ax, x0, y0, margen_d, lados_segun_rotacion[rot]["d"], ancho, profundidad)
+            dibujar_margen(ax, x0, y0, margen_d, sentido_por_lado_segun_rotacion[rot]["d"], ancho, profundidad)
 
 
     plt.grid(True)

@@ -1,14 +1,14 @@
 import csv
 import random
+from itertools import combinations
 
 from deap import base, creator, tools
 
 from src import config
 from src.aptitude import fitness, calcular_bounding_box, se_solapan
 from src.generators import generar_mueble, generar_set_muebles
-from src.values import CANTIDAD_DE_MUEBLES, MUEBLES, HABITACION
 from src.graph import dibujar_habitacion
-from itertools import combinations
+from src.values import CANTIDAD_DE_MUEBLES, MUEBLES, HABITACION
 
 """
     Genera hijos eligiendo el mueble de uno u otro padre de forma aleatoria
