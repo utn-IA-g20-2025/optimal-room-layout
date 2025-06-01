@@ -4,20 +4,23 @@ from itertools import combinations
 from src.values import HABITACION
 
 PUNTUACION_INICIAL = 1000
-PENALIZACION_PARED = 200
-RECOMPENSA_PARED = 100
-PENALIZACION_LADO_FRONTAL = 300
-RECOMPENSA_LADO_FRONTAL = -100 # recompensa = este valor / distancia
-PENALIZACION_ENFRENTAMIENTO_DURO = 80
-PENALIZACION_ENFRENTAMIENTO_DEBIL = 50
-RECOMPENSA_ENFRENTAMIENTO = 20000
+
+# Penalizaciones y recompensas
+# sobre 1 mueble
+PENALIZACION_PARED = 20 # penalización = distancia * este valor
+RECOMPENSA_PARED = 1000 # recompensa = este valor / distancia
 PENALIZACION_TOMA = 10  # penalización = distancia * este valor
-RECOMPENSA_TOMA = 5
-PENALIZACION_ADYACENCIA = 50  # penalización = distancia * este valor
-RECOMPENSA_ADYACENCIA = 25
-PENALIZACION_SOLAPAMIENTO = 5
-RECOMPENSA_SOLAPAMIENTO = 2
-PENALIZACION_SOLAPAMIENTO_DURO = -9999999
+RECOMPENSA_TOMA = 300
+
+# sobre pares de muebles
+PENALIZACION_ENFRENTAMIENTO_DURO = 1000
+PENALIZACION_ENFRENTAMIENTO_DEBIL = 800
+RECOMPENSA_ENFRENTAMIENTO = 5000
+PENALIZACION_ADYACENCIA = 10  # penalización = distancia * este valor
+RECOMPENSA_ADYACENCIA = 2000
+PENALIZACION_SOLAPAMIENTO = 1000
+RECOMPENSA_SOLAPAMIENTO = 3000
+PENALIZACION_SOLAPAMIENTO_DURO = 9999
 
 def calcular_distancia(coordenadas1, coordenadas2):
     return math.sqrt(
@@ -90,7 +93,7 @@ def calcular_bounding_box_sin_margenes(mueble):
     })
     return calcular_bounding_box(mueble_sin_margenes)
 
-def calcular_distancia_a_pared(mueble):
+def calcular_distancia_minima_a_pared(mueble):
     """
     Calcula la distancia mínima de un objeto a la pared más cercana.
     Args:
@@ -99,19 +102,6 @@ def calcular_distancia_a_pared(mueble):
         float: La distancia mínima a la pared.
     """
     bbox = calcular_bounding_box(mueble)
-    """
-    if mueble["lado_frontal"]:
-        sentido = sentido_por_lado_segun_rotacion[mueble["rot"]][mueble["lado_frontal"]]
-        if sentido == 0:
-            return bbox[0]
-        elif sentido == 90:
-            return bbox[1]
-        elif sentido == 180:
-            return HABITACION["ancho"] - bbox[2]
-        else:
-            return HABITACION["profundidad"] - bbox[3]
-    else:
-    """
     return min(
         bbox[0], bbox[1],
         HABITACION["ancho"] - bbox[2],
@@ -186,7 +176,7 @@ def calcular_penalizacion_adyacencia(mueble1, mueble2):
 
     distancia = calcular_distancia_minima(bbox1, bbox2)
     if distancia <= 1:
-        return RECOMPENSA_ADYACENCIA # recompensa
+        return (-1) * RECOMPENSA_ADYACENCIA # recompensa
     return distancia * PENALIZACION_ADYACENCIA
 
 
@@ -203,7 +193,7 @@ def calcular_penalizacion_solapamiento(mueble1, mueble2):
     bbox2 = calcular_bounding_box(mueble2)
     if se_solapan(bbox1, bbox2):
         return PENALIZACION_SOLAPAMIENTO
-    return RECOMPENSA_SOLAPAMIENTO
+    return (-1) * RECOMPENSA_SOLAPAMIENTO
 
 
 def calcular_penalizacion_toma(mueble):
@@ -217,12 +207,19 @@ def calcular_penalizacion_toma(mueble):
     if mueble['requiere_toma']:
         dist_min = calcular_distancia_a_toma(mueble)
         return dist_min * PENALIZACION_TOMA
-    return RECOMPENSA_TOMA
+    return (-1) * RECOMPENSA_TOMA
 
 
-def calcular_penalizacion_lado_frontal(mueble):
+def calcular_penalizacion_pared(mueble):
+    """
+    Calcula la penalización por la distancia a la pared más cercana.
+    Args:
+        mueble: Objeto sobre el que se quiere calcular la penalizacion, teniendo en cuenta su cara frontal si aplica
+    Returns:
+        float: La penalización por la distancia a la pared.
+    """
     lado_frontal = mueble['lado_frontal']
-    if lado_frontal and mueble["debe_ir_a_pared"]:
+    if mueble["debe_ir_a_pared"] and lado_frontal:
         sentido = sentido_por_lado_segun_rotacion[mueble["rot"]][lado_frontal]
         bbox = calcular_bounding_box(mueble)
         if sentido == 0:
@@ -234,28 +231,13 @@ def calcular_penalizacion_lado_frontal(mueble):
         else:
             distancia_a_pared_respetando_lado_frontal = HABITACION["profundidad"] - bbox[3]
 
-        if calcular_distancia_a_pared(mueble) < distancia_a_pared_respetando_lado_frontal: # si esto pasa, el mueble no esta apuntando al lado correcto
-            return PENALIZACION_LADO_FRONTAL
+        if distancia_a_pared_respetando_lado_frontal == calcular_distancia_minima_a_pared(mueble):
+            return (-1) * RECOMPENSA_PARED/(distancia_a_pared_respetando_lado_frontal + 1)
         else:
-            return RECOMPENSA_LADO_FRONTAL/distancia_a_pared_respetando_lado_frontal
+            # el mueble no esta apuntando al lado correcto
+            return distancia_a_pared_respetando_lado_frontal * PENALIZACION_PARED
     else:
         return 0
-
-def calcular_penalizacion_pared(mueble):
-    """
-    Calcula la penalización por la distancia a la pared más cercana.
-    Args:
-        mueble: Objeto sobre el que se quiere calcular la penalizacion, teniendo en cuenta su cara frontal si aplica
-    Returns:
-        float: La penalización por la distancia a la pared.
-    """
-    if mueble["debe_ir_a_pared"]:
-        dist_pared = calcular_distancia_a_pared(mueble)
-        if dist_pared > 0:
-            return PENALIZACION_PARED
-        else:
-            return RECOMPENSA_PARED
-    return 0
 
 """
 Ej, si el objeto esta rotado a 0°:
@@ -285,9 +267,17 @@ sentido_por_lado_segun_rotacion = {
     270: {"d": 90, "a": 0, "b": 270, "c": 180},
 }
 
+lado_opuesto = {
+    "a": "c",
+    "c": "a",
+    "b": "d",
+    "d": "b"
+}
+
 def calcular_penalizacion_enfrentamiento(mueble1, mueble2):
     sentido_lado_frontal1 = sentido_por_lado_segun_rotacion[mueble1["rot"]][mueble1["lado_frontal"]]
     sentido_lado_frontal2 = sentido_por_lado_segun_rotacion[mueble2["rot"]][mueble2["lado_frontal"]]
+
     lados_son_opuestos = abs(sentido_lado_frontal1 - sentido_lado_frontal2) == 180
     if lados_son_opuestos:
         (x1_min, y1_min, x1_max, y1_max) = calcular_bounding_box(mueble1)
@@ -304,7 +294,7 @@ def calcular_penalizacion_enfrentamiento(mueble1, mueble2):
                 estan_enfrentados = x2_min >= x1_min and x2_max <= x1_max
 
         if estan_enfrentados:
-            return RECOMPENSA_ENFRENTAMIENTO
+            return (-1) * RECOMPENSA_ENFRENTAMIENTO
         else:
             return PENALIZACION_ENFRENTAMIENTO_DEBIL
     else:
@@ -336,7 +326,7 @@ def fitness(muebles):
                 calcular_bounding_box_sin_margenes(mueble1),
                 calcular_bounding_box_sin_margenes(mueble2)
         ):
-            return PENALIZACION_SOLAPAMIENTO_DURO,
+            return (-1) * PENALIZACION_SOLAPAMIENTO_DURO,
 
     puntuacion = PUNTUACION_INICIAL
 
@@ -346,7 +336,6 @@ def fitness(muebles):
     for mueble in muebles:
         puntuacion -= calcular_penalizacion_toma(mueble)
         puntuacion -= calcular_penalizacion_pared(mueble)
-        puntuacion -= calcular_penalizacion_lado_frontal(mueble)
         #puntuacion -= calcular_penalizacion_fuera_de_limites(mueble)
 
     for regla in HABITACION["reglas_adyacencia"]:

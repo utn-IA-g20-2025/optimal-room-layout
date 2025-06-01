@@ -1,14 +1,14 @@
 import csv
 import random
-from itertools import combinations
+from datetime import datetime
 
 from deap import base, creator, tools
 
 from src import config
-from src.aptitude import fitness, calcular_bounding_box, se_solapan, calcular_penalizacion_lado_frontal
+from src.aptitude import fitness, calcular_bounding_box
 from src.generators import generar_mueble, generar_set_muebles
 from src.graph import dibujar_habitacion
-from src.values import CANTIDAD_DE_MUEBLES, MUEBLES, HABITACION
+from src.values import HABITACION
 
 """
     Genera hijos eligiendo el mueble de uno u otro padre de forma aleatoria
@@ -28,29 +28,6 @@ def crossover_binomial_azar(padre1, padre2):
     hijo2 = [random.choice([mueble_padre1, mueble_padre2]) for (mueble_padre1, mueble_padre2) in zip(padre1, padre2)]
     return hijo1, hijo2
 
-def cx_habitacion(ind1, ind2):
-    combined = ind1 + ind2
-    random.shuffle(combined)
-    muebles = {}
-
-    for mueble in combined:
-        nombre = mueble["nombre"]
-        if nombre not in muebles:
-            muebles[nombre] = mueble
-
-    new_muebles = list(muebles.values())
-
-    while len(new_muebles) < CANTIDAD_DE_MUEBLES:
-        mueble_faltante = random.choice([mueble for mueble in MUEBLES if mueble["nombre"] not in muebles])
-        nuevo_mueble = generar_mueble(mueble_faltante)
-        new_muebles.append(nuevo_mueble)
-
-    ind1[:] = new_muebles[:CANTIDAD_DE_MUEBLES]
-    ind2[:] = new_muebles[:CANTIDAD_DE_MUEBLES]
-
-    return ind1, ind2
-
-
 def mutar_habitacion(individual):
     for i in range(len(individual)):
         if random.random() < config.CONFIG.MUTATION_PROB:
@@ -60,7 +37,7 @@ def mutar_habitacion(individual):
     return individual
 
 
-creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+creator.create("FitnessMax", base.Fitness, weights=(1.0,), wvalues=(1.0,))
 creator.create("Individual", list, fitness=creator.FitnessMax)
 
 toolbox = base.Toolbox()
@@ -72,13 +49,10 @@ if config.CONFIG.SELECTION_TYPE == 'Tournament':
     toolbox.register("select", tools.selTournament, tournsize=config.CONFIG.TOURNAMENT_SIZE)
 elif config.CONFIG.SELECTION_TYPE == 'Roulette':
     toolbox.register("select", tools.selRoulette)
-elif config.CONFIG.SELECTION_TYPE == 'Rank':
-    toolbox.register("select", tools.selRank)
+elif config.CONFIG.SELECTION_TYPE == 'Random':
+    toolbox.register("select", tools.selRandom)
 
-if config.CONFIG.CROSSOVER_TYPE == 'cx_habitacion':
-    toolbox.register("mate", cx_habitacion)
-elif config.CONFIG.CROSSOVER_TYPE == 'crossover_binomial_azar':
-    toolbox.register("mate", crossover_binomial_azar)
+toolbox.register("mate", crossover_binomial_azar)
 
 toolbox.register("mutate", mutar_habitacion)
 
@@ -94,7 +68,7 @@ def execute_ga_with_deap():
     stats.register("avg", lambda x: sum(fit[0] for fit in x) / len(x))
     stats.register("max", max)
 
-    with open("resources/resultados.csv", mode="w+", newline="") as file:
+    with open(f"resources/resultados.csv", mode="w+", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(["Generación", "Fitness Promedio", "Fitness Máximo"])
 
@@ -132,11 +106,6 @@ def execute_ga_with_deap():
         for key, value in mueble.items():
             print(f"  {key}: {value}")
     print("Fitness value:", best_habitacion.fitness.values[0])
-    # TODO eliminar, es para debug
-    print("Se solapan: ", [(m1["nombre"],m2["nombre"]) for (m1, m2) in combinations(best_habitacion, 2) if se_solapan(calcular_bounding_box(m1),calcular_bounding_box(m2))])
-    print("A pared: ", [mueble["nombre"] for mueble in best_habitacion if mueble["debe_ir_a_pared"]])
-    for mueble in best_habitacion:
-        print(f"Penalizacion lado frontal {mueble["nombre"]}: {calcular_penalizacion_lado_frontal(mueble)}")
 
     with open("resources/best_habitacion.csv", mode="w", newline="") as file:
         writer = csv.writer(file)
@@ -150,4 +119,8 @@ def execute_ga_with_deap():
 
 
 if __name__ == "__main__":
+    start_time = datetime.now()
     execute_ga_with_deap()
+    end_time = datetime.now()
+    print(f"Tiempo transcurrido: {end_time - start_time}")
+

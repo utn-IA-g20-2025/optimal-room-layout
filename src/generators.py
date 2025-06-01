@@ -9,8 +9,8 @@ def generar_mueble(info_mueble):
         HABITACION["profundidad"]
     )
     mitad_ancho, mitad_profundidad = (
-        floor(info_mueble['ancho'] / 2), 
-        floor(info_mueble['profundidad'])
+        floor(info_mueble["ancho"] / 2),
+        floor(info_mueble["profundidad"] / 2)
     )
     margen_a, margen_b, margen_c, margen_d = (
         info_mueble['margen_a'], 
@@ -20,25 +20,25 @@ def generar_mueble(info_mueble):
     )
     rotacion = random.choice([0, 90, 180, 270])
     if rotacion == 0:
-        x_limite_inferior = 0 + mitad_ancho + margen_d
-        x_limite_superior = ancho_habitacion - mitad_ancho - margen_b
-        y_limite_inferior = 0 + mitad_profundidad + margen_c
-        y_limite_superior = profundidad_habitacion - mitad_profundidad - margen_a
+        x_min = 0 + mitad_ancho + margen_d
+        x_max = ancho_habitacion - mitad_ancho - margen_b
+        y_min = 0 + mitad_profundidad + margen_c
+        y_max = profundidad_habitacion - mitad_profundidad - margen_a
     elif rotacion == 90:
-        x_limite_inferior = 0 + mitad_profundidad + margen_a
-        x_limite_superior = ancho_habitacion - mitad_profundidad - margen_c
-        y_limite_inferior = 0 + mitad_ancho + margen_d
-        y_limite_superior = profundidad_habitacion - mitad_ancho - margen_b
+        x_min = 0 + mitad_profundidad + margen_a
+        x_max = ancho_habitacion - mitad_profundidad - margen_c
+        y_min = 0 + mitad_ancho + margen_d
+        y_max = profundidad_habitacion - mitad_ancho - margen_b
     elif rotacion == 180:
-        x_limite_inferior = 0 + mitad_ancho + margen_b
-        x_limite_superior = ancho_habitacion - mitad_ancho - margen_d
-        y_limite_inferior = 0 + mitad_profundidad + margen_a
-        y_limite_superior = profundidad_habitacion - mitad_profundidad - margen_c
+        x_min = 0 + mitad_ancho + margen_b
+        x_max = ancho_habitacion - mitad_ancho - margen_d
+        y_min = 0 + mitad_profundidad + margen_a
+        y_max = profundidad_habitacion - mitad_profundidad - margen_c
     else: #270
-        x_limite_inferior = 0 + mitad_profundidad + margen_c
-        y_limite_inferior = 0 + mitad_ancho + margen_b
-        x_limite_superior = ancho_habitacion - mitad_profundidad - margen_a
-        y_limite_superior = profundidad_habitacion - mitad_ancho - margen_d
+        x_min = 0 + mitad_profundidad + margen_c
+        y_min = 0 + mitad_ancho + margen_b
+        x_max = ancho_habitacion - mitad_profundidad - margen_a
+        y_max = profundidad_habitacion - mitad_ancho - margen_d
 
     return {
         "nombre": info_mueble["nombre"],
@@ -51,8 +51,8 @@ def generar_mueble(info_mueble):
         "margen_b": margen_b,
         "margen_c": margen_c,
         "margen_d": margen_d,
-        "x": random.randint(x_limite_inferior, x_limite_superior),
-        "y": random.randint(y_limite_inferior, y_limite_superior),
+        "x": random.randint(x_min, x_max),
+        "y": random.randint(y_min, y_max),
         "rot": rotacion
     }
 

@@ -24,7 +24,7 @@ mesa_con_sillas = {
     "profundidad": 160,
     "requiere_toma": False,
     "debe_ir_a_pared": False,
-    "lado_frontal": None,
+    "lado_frontal": "d",
     "margen_a": 20,
     "margen_b": 20,
     "margen_c": 20,
@@ -49,12 +49,12 @@ tv = {
     "ancho": 145,
     "profundidad": 8,
     "requiere_toma": True,
-    "debe_ir_a_pared": False,
+    "debe_ir_a_pared": True,
     "lado_frontal": "c",
-    "margen_a": 20,
-    "margen_b": 20,
+    "margen_a": 3,
+    "margen_b": 10,
     "margen_c": 80,
-    "margen_d": 20
+    "margen_d": 10
 }
 
 biblioteca = {
@@ -135,9 +135,60 @@ cocina = {
     "margen_d": 3
 }
 
-MUEBLES = [ mesa_con_sillas, tv, biblioteca, sillon, escritorio, heladera, lavarropas, cama, cocina ]
+lampara = {
+    "nombre": "Lampara",
+    "ancho": 30,
+    "profundidad": 30,
+    "requiere_toma": True,
+    "debe_ir_a_pared": False,
+    "lado_frontal": None,
+    "margen_a": 5,
+    "margen_b": 5,
+    "margen_c": 5,
+    "margen_d": 5
+}
 
-HABITACION = {
+cuadro = {
+    "nombre": "Cuadro",
+    "ancho": 50,
+    "profundidad": 3,
+    "requiere_toma": True,
+    "debe_ir_a_pared": True,
+    "lado_frontal": "c",
+    "margen_a": 0,
+    "margen_b": 0,
+    "margen_c": 20,
+    "margen_d": 0
+}
+
+habitacion_1 = {
+    "muebles": [ mesa_con_sillas, tv, biblioteca, sillon, escritorio, lampara, cuadro ],
+    "ancho": 400,
+    "profundidad": 350,
+    "tomas": [
+        {
+            "x": 42,
+            "y": 0
+        },
+        {
+            "x": 0,
+            "y": 250
+        },
+        {
+            "x": 0,
+            "y": 80
+        },
+        {
+            "x": 400,
+            "y": 250
+        }
+    ],
+    "reglas_adyacencia": [ (escritorio, biblioteca), (tv, sillon), (tv, mesa_con_sillas), (lampara, sillon) ],
+    "reglas_enfrentamiento": [ (tv, sillon) ]
+}
+
+habitacion_2 = {
+    "muebles": [ mesa_con_sillas, tv, biblioteca, sillon, escritorio, lampara, heladera, cocina, cama,lavarropas ],
     "ancho": 800,
     "profundidad": 500,
     "tomas": [
@@ -147,7 +198,7 @@ HABITACION = {
         },
         {
             "x": 0,
-            "y": 60
+            "y": 250
         },
         {
             "x": 0,
@@ -158,9 +209,10 @@ HABITACION = {
             "y": 250
         }
     ],
-    "reglas_adyacencia": [ (escritorio, biblioteca), (tv, sillon), (tv, mesa_con_sillas), (heladera, lavarropas), (cocina, heladera) ],
+    "reglas_adyacencia": [ (escritorio, biblioteca), (tv, sillon), (tv, mesa_con_sillas), (lampara, sillon), (heladera, cocina), (cama, tv), (lavarropas, heladera) ],
     "reglas_enfrentamiento": [ (tv, sillon) ]
 }
 
-
+HABITACION = habitacion_1
+MUEBLES = HABITACION["muebles"]
 CANTIDAD_DE_MUEBLES = len(MUEBLES)

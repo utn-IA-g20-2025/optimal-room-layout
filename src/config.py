@@ -1,9 +1,7 @@
 class CONFIG:
-    POPULATION_SIZE = 150
-    NUMBER_OF_GENERATIONS = 300
+    POPULATION_SIZE = 250
+    NUMBER_OF_GENERATIONS = 1000
     TOURNAMENT_SIZE = 25
-    MUTATION_PROB = 0.4
+    MUTATION_PROB = 0.1
     GENERATIONAL_LEAP = 5
-    CROSSOVER_TYPE = 'crossover_binomial_azar' # Funciones de cruza: 'cx_habitacion', 'crossover_binomial_azar'
-    SELECTION_TYPE = 'Tournament'  # Tipo de selección: 'Tournament', 'Roulette', 'Rank'
-
+    SELECTION_TYPE = 'Tournament'  # Tipo de selección: 'Tournament', 'Roulette'
