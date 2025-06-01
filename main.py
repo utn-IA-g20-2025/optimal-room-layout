@@ -5,7 +5,7 @@ from itertools import combinations
 from deap import base, creator, tools
 
 from src import config
-from src.aptitude import fitness, calcular_bounding_box, se_solapan
+from src.aptitude import fitness, calcular_bounding_box, se_solapan, calcular_penalizacion_lado_frontal
 from src.generators import generar_mueble, generar_set_muebles
 from src.graph import dibujar_habitacion
 from src.values import CANTIDAD_DE_MUEBLES, MUEBLES, HABITACION
@@ -135,6 +135,8 @@ def execute_ga_with_deap():
     # TODO eliminar, es para debug
     print("Se solapan: ", [(m1["nombre"],m2["nombre"]) for (m1, m2) in combinations(best_habitacion, 2) if se_solapan(calcular_bounding_box(m1),calcular_bounding_box(m2))])
     print("A pared: ", [mueble["nombre"] for mueble in best_habitacion if mueble["debe_ir_a_pared"]])
+    for mueble in best_habitacion:
+        print(f"Penalizacion lado frontal {mueble["nombre"]}: {calcular_penalizacion_lado_frontal(mueble)}")
 
     with open("resources/best_habitacion.csv", mode="w", newline="") as file:
         writer = csv.writer(file)
